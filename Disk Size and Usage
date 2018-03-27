@@ -1,0 +1,23 @@
+Get Physical Disk Info from a Server:
+
+
+Direct Command on the Server:
+
+Get-PhysicalDisk | Select FriendlyName,Size,BusType
+
+Get-PhysicalDisk | Group-Object BusType| Select-Object @{Name="BusType";e={$_.Name}},@{Name="TotalDisk
+Size(GB)";e={[math]::Round(($_.Group|Measure-Object -Property Size -Sum).sum/1GB,2)}}|ft
+
+Get-PhysicalDisk|Where-Object {$_.BusType -Match "Fibre Channel"}|Select-Object FriendlyName,{$_.Size/1GB},BusType|ft}
+
+Get-WmiObject -Class Win32_LogicalDisk | Select-Object Name,VolumeName,@{n="Size(GB)";e={[math]::Round($_.Size/1GB,0)}},@{n="F
+reeSpace(GB)";e={[math]::Round($_.FreeSpace/1GB,2)}},@{n="%FreeSpace";e={[math]::(($_.Size)-($_.FreeSpace))/($_.Size)}}
+
+Get-WmiObject -Class Win32_LogicalDisk | Select-Object Name,VolumeName,@{n="Size(GB)";e={[math]::Round($_.Size/1GB,0)}},
+@{n="FreeSpace(GB)";e={[math]::Round($_.FreeSpace/1GB,2)}},@{n="%FreeSpace";e={[math]::Round($_.FreeSpace*100/$_.Size,2)}}|ft
+
+
+Remote Command :
+
+Invoke-Command  -ComputerName xxxxxxx -ScriptBlock {Get-PhysicalDisk | Group-Object BusType| Select-Object @{Name="BusType";
+e={$_.Name}},@{Name="TotalDiskSize(GB)";e={[math]::Round(($_.Group|Measure-Object -Property Size -Sum).sum/1GB,2)}}|ft}
